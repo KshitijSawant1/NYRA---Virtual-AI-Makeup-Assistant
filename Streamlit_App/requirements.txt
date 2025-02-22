@@ -1,7 +1,7 @@
-streamlit
-opencv-python
-numpy
-mediapipe
+streamlit>=1.20.0
+opencv-python-headless==4.7.0.72  # Use headless version to avoid display-related errors
+numpy>=1.23.0
+mediapipe>=0.10.0
 cohere
 pillow
 pandas
