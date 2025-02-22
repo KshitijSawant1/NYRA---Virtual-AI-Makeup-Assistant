@@ -1,0 +1,8 @@
+streamlit
+opencv-python
+numpy
+mediapipe
+cohere
+pillow
+pandas
+matplotlib
