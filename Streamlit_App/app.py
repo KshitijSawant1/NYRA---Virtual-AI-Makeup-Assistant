@@ -2,7 +2,15 @@ import streamlit as st
 import cv2
 import numpy as np
 import mediapipe as mp
-import cohere  # Import Cohere for AI color analysis
+import cohere 
+import re
+
+st.set_page_config(
+    page_title="NYRA",
+    page_icon="https://github.com/user-attachments/assets/d63378a3-baaf-4afe-9540-cb5674a73e12",  
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # Initialize Mediapipe Face Mesh
 mp_face_mesh = mp.solutions.face_mesh
@@ -29,7 +37,7 @@ st.markdown(
 )
 
 # Streamlit UI
-st.title("💄 Virtual Makeup App (Blush, Lipstick & Eyeshadow)")
+st.title("NYRA - Virtual AI Makeup Assistant")
 # 📷 Webcam Controls at the Top
 st.sidebar.title("📷 Webcam Controls")
 if "webcam_enabled" not in st.session_state:
@@ -79,6 +87,7 @@ st.sidebar.title("💄 Makeup Controls")
 
 # Blush Settings with Visual Color Swatches
 # Blush Toggle
+st.sidebar.title("✨ Blush Settings")
 if "blush_enabled" not in st.session_state:
     st.session_state.blush_enabled = False
 if st.sidebar.button("Enable Blush" if not st.session_state.blush_enabled else "❌ Disable Blush"):
@@ -133,6 +142,7 @@ elif blush_color_mode == "Custom Color":
 blush_color = st.session_state.blush_color
 st.sidebar.markdown("---")
 # Lipstick Toggle
+st.sidebar.title("✨ Lip Color Settings")
 if "lipstick_enabled" not in st.session_state:
     st.session_state.lipstick_enabled = False
 if st.sidebar.button("Enable Lipstick" if not st.session_state.lipstick_enabled else "❌ Disable Lipstick"):
@@ -186,6 +196,7 @@ elif lipstick_color_mode == "Custom Color":
 lipstick_color = st.session_state.lipstick_color
 st.sidebar.markdown("---")
 # Eyeshadow Toggle
+st.sidebar.title("✨ Eye Shadow Settings")
 if "eyeshadow_enabled" not in st.session_state:
     st.session_state.eyeshadow_enabled = False
 if st.sidebar.button("Enable Eyeshadow" if not st.session_state.eyeshadow_enabled else "❌ Disable Eyeshadow"):
@@ -214,6 +225,20 @@ st.sidebar.title("✨ Face Enhancements")
 smoothing_intensity = st.sidebar.slider("Smooth Skin Level", 0, 100, 30)
 brightness_increase = st.sidebar.slider("Increase Brightness", 0, 100, 30)
 
+def color_swatch_with_tooltip(hex_code):
+    return f"""
+    <div title="{hex_code}" style="
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        background-color: {hex_code};
+        margin: 5px;
+        border-radius: 5px;
+        position: relative;
+        border: 1px solid #ddd;
+    ">
+    </div>
+    """
 
 FRAME_WINDOW = st.image([])
 
@@ -355,12 +380,24 @@ if st.session_state.webcam_enabled:
                 analysis = response.generations[0].text
                 st.session_state.analysis_done = True  # Prevent repeated analysis
 
+                # Extract hex codes from the analysis using regex
+                hex_codes = re.findall(r'#(?:[0-9a-fA-F]{3}){1,2}', analysis)
+
                 # Display the AI response with color swatches
                 st.subheader("🌈 AI Color Analysis Result")
                 st.markdown(f"**Skin Color:** {color_swatch(skin_hex)} {skin_hex}", unsafe_allow_html=True)
                 st.markdown(f"**Iris Color:** {color_swatch(iris_hex)} {iris_hex}", unsafe_allow_html=True)
                 st.markdown(f"**Lip Color:** {color_swatch(lips_hex)} {lips_hex}", unsafe_allow_html=True)
                 st.markdown(analysis)
+
+                # Display extracted hex colors in a horizontal line
+                if hex_codes:
+                    st.subheader("🎨 Color Swatches")
+                    color_swatch_html = "".join([color_swatch_with_tooltip(code) for code in hex_codes])
+                    st.markdown(color_swatch_html, unsafe_allow_html=True)
+                else:
+                    st.write("No hex codes detected in the analysis.")
+
 
     cap.release()
     st.session_state.analysis_done = False  # Reset analysis state after release
