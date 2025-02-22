@@ -7,7 +7,7 @@ mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True)
 
 # Load Sharingan Image
-sharingan_img = cv2.imread("Sharingan/image.png", cv2.IMREAD_UNCHANGED)
+sharingan_img = cv2.imread("Sharingan/image2.png", cv2.IMREAD_UNCHANGED)
 
 if sharingan_img is None:
     print("Error: Could not load Sharingan image. Check the file path!")
