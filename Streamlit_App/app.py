@@ -4,6 +4,13 @@ import numpy as np
 import mediapipe as mp
 import cohere 
 import re
+import time
+import os
+
+# Ensure the directory exists
+capture_directory = "Captured_Images"
+if not os.path.exists(capture_directory):
+    os.makedirs(capture_directory)
 
 st.set_page_config(
     page_title="NYRA",
@@ -52,6 +59,14 @@ if st.session_state.webcam_enabled:
     st.sidebar.success("Webcam is ON")
 else:
     st.sidebar.error("Webcam is OFF")
+    
+# Button to capture image with session state
+if st.sidebar.button("📸 Capture & Save Image"):
+    st.session_state.capture_image = True  # Set the flag to True when button is clicked
+# Add a state for capturing images
+if "capture_image" not in st.session_state:
+    st.session_state.capture_image = False
+
 
 st.sidebar.markdown("---")
 # Add a toggle for AI color analysis
@@ -355,8 +370,28 @@ if st.session_state.webcam_enabled:
                 brightness_matrix = np.ones(smoothed_frame.shape, dtype="uint8") * brightness_increase
                 brightened_frame = cv2.add(smoothed_frame, brightness_matrix)
 
+
         # Convert frame to RGB for display
         display_frame = cv2.cvtColor(brightened_frame, cv2.COLOR_BGR2RGB)
+            
+        # Save the image only once after applying all makeup
+        if st.session_state.capture_image:
+            timestamp = time.strftime("%Y%m%d-%H%M%S")
+            image_filename = os.path.join(capture_directory, f"makeup_applied_{timestamp}.png")
+            
+            # Convert the final processed frame back to BGR format before saving
+            processed_frame_bgr = cv2.cvtColor(display_frame, cv2.COLOR_RGB2BGR)
+            
+            success = cv2.imwrite(image_filename, processed_frame_bgr)  # Save the final frame with makeup applied
+            
+            if success:
+                st.success(f"✅ Image with makeup saved successfully as {image_filename}")
+            else:
+                st.error("❌ Failed to save the image. Check the directory permissions or path.")
+            
+            # Reset the flag after saving
+            st.session_state.capture_image = False
+            
         FRAME_WINDOW.image(display_frame)
         # Trigger AI analysis using Cohere
         if generate_analysis and api_key and not st.session_state.analysis_done:

@@ -1,28 +1,41 @@
 import cv2
-import numpy as np
-import face_recognition
-from PIL import Image
 
-# Load Glasses Image
-GLASSES = Image.open("glasses.png").convert("RGBA")
+# Load the eyewear image with transparency (PNG format)
+eyewear_image = cv2.imread("Virtual Makeup/Eyewear_Collection.png", cv2.IMREAD_UNCHANGED)
 
-# Load Image
-image = face_recognition.load_image_file("restored_output.jpg")
-face_landmarks_list = face_recognition.face_landmarks(image)
-pil_image = Image.fromarray(image)
+# Load the face detection model (Haar Cascade)
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-if face_landmarks_list:
-    left_eye = face_landmarks_list[0]["left_eye"][0]
-    right_eye = face_landmarks_list[0]["right_eye"][3]
-    x1, y1 = left_eye
-    x2, y2 = right_eye
+# Initialize webcam
+cap = cv2.VideoCapture(0)
 
-    glasses_width = abs(x2 - x1) + 50
-    glasses_height = glasses_width // 3
+def add_eyewear(face_frame, eyewear, x, y, w, h):
+    eyewear_resized = cv2.resize(eyewear, (w, int(h / 3)))  # Resize eyewear to fit the face width
+    ew_height, ew_width, _ = eyewear_resized.shape
 
-    GLASSES = GLASSES.resize((glasses_width, glasses_height), Image.ANTIALIAS)
-    pil_image.paste(GLASSES, (x1 - 20, y1 - 20), GLASSES)
+    for i in range(ew_height):
+        for j in range(ew_width):
+            # Skip transparent pixels
+            if eyewear_resized[i, j][3] != 0:
+                face_frame[y + i, x + j] = eyewear_resized[i, j][:3]
+    return face_frame
 
-# Save or Show
-pil_image.save("glasses_output.jpg")
-pil_image.show()
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+
+    # Add eyewear to detected faces
+    for (x, y, w, h) in faces:
+        frame = add_eyewear(frame, eyewear_image, x, y + int(h / 4), w, h)
+
+    cv2.imshow("Virtual Eyewear", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
