@@ -56,7 +56,7 @@ If you like this project, **give it a star** ⭐ on GitHub!
 ---
 
 #### 🌈 **3. AI-Driven Color Analysis**  
-- Enter your **Cohere API Key** in the sidebar.  
+- Enter your **Google AI Studio API Key** in the sidebar.  
 - Click **"Generate Color Analysis"** to get personalized makeup and fashion suggestions based on your skin tone, eye color, and lip shade.
 
 ---
@@ -84,7 +84,7 @@ Follow these steps to make the most of **NYRA** and experiment with virtual make
 ---
 
 #### **2. AI Color Analysis**
-- Enter your **Cohere API Key** in the **AI Color Analysis** section.
+- Enter your **Google AI Studio API Key** in the **AI Color Analysis** section.
 - Click on **Generate Color Analysis** to let NYRA analyze your skin, iris, and lip tones.
 - The analysis provides:
   - 🎨 **Skin Color**
@@ -137,21 +137,39 @@ Follow these steps to make the most of **NYRA** and experiment with virtual make
     <strong>✨ Eyeshadow and Face Enhancements</strong><br>
     <img src="https://github.com/user-attachments/assets/4c0cc31a-fa85-4409-bab4-f38b4d949538" width="100%" style="border-radius: 10px;">
 </div>
----
-
-#### **5. Capture and Save Image**
-- Click the **📸 Capture & Save Image** button to save your look.
-- Images are automatically saved to the `Captured_Images` folder.
 
 ---
 
-#### **6. Powered by Cohere AI**
-- NYRA leverages **Cohere AI** for intelligent color analysis and personalized recommendations.
+#### 🌈 **5. AI-Driven Color Analysis**  
+## Google AI Studio: A Powerful AI Development Platform 🚀
+Google AI Studio is an online platform designed for developers, researchers, and businesses to access, experiment with, and deploy Google's Gemini AI models easily. It provides a user-friendly interface for working with Google's large language models (LLMs) and multimodal AI capabilities, allowing you to create AI-driven applications with minimal effort.
 
 <div style="border: 2px solid #ddd; border-radius: 10px; padding: 10px; margin: 10px 0;">
-    <strong>🤖 Powered by Cohere AI</strong><br>
-    <img src="https://github.com/user-attachments/assets/1e99f4e4-e873-4c4c-bea8-783d7f50eb37" width="50%" style="border-radius: 10px; display: block; margin: 0 auto;">
+    <img src="https://github.com/user-attachments/assets/be7cfd36-4e36-4061-aaa2-ef6c2dcedc72" width="100%" style="border-radius: 10px;">
 </div>
+
+NYRA leverages **Google AI Studio’s Gemini AI** for advanced **color analysis** and **fashion recommendations**. Using real-time facial landmark detection and AI-driven insights, NYRA can generate:  
+- 🎨 **Personalized color palettes** based on your **skin tone, iris color, and lip shade**.  
+- 🏷️ **Makeup, fashion, and hair color recommendations** aligned with seasonal color theory.  
+- 🎭 **HEX Color Codes** for seamless integration into makeup and styling choices.  
+
+##### **How It Works:**  
+- Enter your **Gemini AI API Key** in the sidebar.  
+- Click **"Generate AI Color Analysis"** to process real-time color analysis.  
+- AI will **detect and suggest** ideal makeup, clothing, and hair color choices.  
+- View **HEX color swatches** extracted from the AI recommendations.  
+
+<div style="border: 2px solid #ddd; border-radius: 10px; padding: 10px; margin: 10px 0;">
+    <strong>🎨 AI Color Analysis Result</strong><br>
+    <img src="https://github.com/user-attachments/assets/ceb788b6-05c4-4cb7-ab5a-41c23054299d" width="100%" style="border-radius: 10px;">
+</div>
+
+---
+
+#### 📸 **6. Saving Your Looks**  
+- Once you’re satisfied with your virtual makeover, click **"📸 Capture & Save Image"** to save your look.  
+- All images will be saved in the `Captured_Images/` folder automatically with timestamps.
+
 
 ---
 ### 🚀 **Installation Instructions**
@@ -166,7 +184,7 @@ Ensure you have the following installed on your machine:
 - ✅ Python **3.8+**
 - ✅ `pip` (Python package manager)
 - ✅ A webcam for capturing real-time video
-- ✅ [Cohere API Key](https://cohere.ai/) for AI-powered color analysis
+- ✅ [Google AI Studio API Key](https://aistudio.google.com/prompts/new_chat) for AI-powered color analysis
 
 ---
 
@@ -192,23 +210,12 @@ pip install -r requirements.txt
 If you face issues with specific packages, install them manually:
 
 ```bash
-pip install streamlit opencv-python mediapipe cohere numpy
+pip install streamlit opencv-python mediapipe Google AI Studio numpy
 ```
 
 ---
 
-#### **4. Set Up Cohere API Key**
-
-Get your API key from [Cohere](https://cohere.ai/) and set it up:
-- Add the following line to a `.env` file or input it directly in the app:
-
-```bash
-COHERE_API_KEY=your_api_key_here
-```
-
----
-
-#### **5. Run NYRA Locally**
+#### **4. Run NYRA Locally**
 
 Execute the following command to launch the app:
 
@@ -223,7 +230,7 @@ http://localhost:8501
 
 ---
 
-#### **6. Folder Structure**
+#### **5. Folder Structure**
 
 Here's what your project directory should look like:
 
@@ -314,7 +321,7 @@ The `Virtual Makeup` folder offers additional elements to enhance user style:
 
 ### 🛠️ **Supporting Files**
 - **requirements.txt** – Lists all required Python libraries to run NYRA smoothly.
-- **apikey.txt** – Stores API keys (e.g., for Cohere AI integration).
+- **apikey.txt** – Stores API keys (e.g., for Google AI Studio integration).
 - **License** – Specifies the GNU General Public License (GPL-3.0) for open-source distribution.
 
 ---
@@ -331,7 +338,7 @@ We welcome contributions! If you'd like to improve NYRA:
 ---
 
 ### 🙌 **Acknowledgments**
-- 🤖 [Cohere AI](https://cohere.ai/) for powering color analysis.
+- 🤖 [Google AI Studio ](https://aistudio.google.com/prompts/new_chat) for powering color analysis.
 - 💻 [Streamlit](https://streamlit.io/) for the interactive user interface.
 - 📸 [MediaPipe](https://google.github.io/mediapipe/) for real-time face mesh detection.
 

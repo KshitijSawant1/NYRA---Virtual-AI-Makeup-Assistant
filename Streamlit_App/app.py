@@ -2,7 +2,7 @@ import streamlit as st
 import cv2
 import numpy as np
 import mediapipe as mp
-import cohere 
+import google.generativeai as genai
 import re
 import time
 import os
@@ -74,12 +74,14 @@ st.sidebar.title("🌈 AI Color Analysis")
 # Initialize Cohere Client
 api_key = st.sidebar.text_input("Enter Cohere API Key", type="password")
 if api_key:
-    co = cohere.Client(api_key)
+    genai.configure(api_key=api_key)
 if "analysis_done" not in st.session_state:
     st.session_state.analysis_done = False
 
 # Button to trigger color analysis
 generate_analysis = st.sidebar.button("Generate Color Analysis")
+if st.sidebar.button("🔄 Reset AI Analysis", key="reset_ai_analysis"):
+    st.session_state.analysis_done = False
 
 # Define landmarks for skin, iris, lips
 SKIN_LANDMARK = 10  # Tip of the nose
@@ -240,6 +242,7 @@ st.sidebar.title("✨ Face Enhancements")
 smoothing_intensity = st.sidebar.slider("Smooth Skin Level", 0, 100, 30)
 brightness_increase = st.sidebar.slider("Increase Brightness", 0, 100, 30)
 
+
 def color_swatch_with_tooltip(hex_code):
     return f"""
     <div title="{hex_code}" style="
@@ -367,9 +370,12 @@ if st.session_state.webcam_enabled:
                 smoothed_frame = cv2.bilateralFilter(frame, d=9, sigmaColor=smoothing_intensity, sigmaSpace=smoothing_intensity)
 
                 # Lighten the Frame (Increase Brightness)
-                brightness_matrix = np.ones(smoothed_frame.shape, dtype="uint8") * brightness_increase
+                brightness_matrix = np.ones_like(smoothed_frame, dtype="uint8") * brightness_increase
                 brightened_frame = cv2.add(smoothed_frame, brightness_matrix)
-
+                if brightened_frame is not None:
+                    display_frame = cv2.cvtColor(brightened_frame, cv2.COLOR_BGR2RGB)
+                else:
+                    st.warning("⚠️ No valid frame captured, skipping display update.")
 
         # Convert frame to RGB for display
         display_frame = cv2.cvtColor(brightened_frame, cv2.COLOR_BGR2RGB)
@@ -393,45 +399,47 @@ if st.session_state.webcam_enabled:
             st.session_state.capture_image = False
             
         FRAME_WINDOW.image(display_frame)
-        # Trigger AI analysis using Cohere
+        # AI Color Analysis with Gemini AI
         if generate_analysis and api_key and not st.session_state.analysis_done:
             if skin_hex and iris_hex and lips_hex:
                 prompt = (
                     f"Provide an in-depth fashion, makeup, and color palette analysis for someone with "
-                    f"skin tone {skin_hex}, iris color {iris_hex}, and lip color {lips_hex}. Suggest suitable "
-                    f"clothing colors, makeup shades, and hair colors based on seasonal color theory."
-                    f"Keep everything concise and provide the result in points."
-                )  
+                    f"skin tone {skin_hex}, iris color {iris_hex}, and lip color {lips_hex}. "
+                    f"Suggest suitable clothing colors, makeup shades, and hair colors based on seasonal color theory. "
+                    f"Ensure that the response includes HEX color codes for each recommendation. "
+                    f"Provide the result in bullet points."
+                )
+
                 try:
-                    with st.spinner("🔍 Analyzing colors..."):
-                        response = co.generate(
-                            model='command-xlarge-nightly',
-                            prompt=prompt,
-                            max_tokens=400
-                        )
+                    with st.spinner("🔍 Analyzing colors with Gemini AI..."):
+                        # Use the correct model name from API response
+                        model = genai.GenerativeModel("gemini-1.5-pro")  # Change this based on API output
+                        
+                        response = model.generate_content(prompt)
+                        analysis = response.text  # Extract AI-generated text
+                        
+                        st.session_state.analysis_done = True  # Prevents multiple analyses until button is clicked again
+                        
+                        # **Extract hex codes from the AI response using regex**
+                        hex_codes = re.findall(r'#(?:[0-9a-fA-F]{3}){1,2}', analysis)
+
+                        # **Display AI analysis results**
+                        st.subheader("🌈 AI Color Analysis Result")
+                        st.markdown(f"**Skin Color:** {color_swatch(skin_hex)} {skin_hex}", unsafe_allow_html=True)
+                        st.markdown(f"**Iris Color:** {color_swatch(iris_hex)} {iris_hex}", unsafe_allow_html=True)
+                        st.markdown(f"**Lip Color:** {color_swatch(lips_hex)} {lips_hex}", unsafe_allow_html=True)
+                        st.markdown(analysis)
+
+                        # **Display extracted AI-suggested color swatches**
+                        if hex_codes:
+                            st.subheader("🎨 AI Suggested Color Swatches")
+                            color_swatch_html = "".join([color_swatch_with_tooltip(code) for code in hex_codes])
+                            st.markdown(color_swatch_html, unsafe_allow_html=True)
+                        else:
+                            st.info("No HEX color codes detected in the AI analysis.")
+
                 except Exception as e:
-                    st.error(f"❌ An error occurred: {str(e)}")
-                
-                analysis = response.generations[0].text
-                st.session_state.analysis_done = True  # Prevent repeated analysis
-
-                # Extract hex codes from the analysis using regex
-                hex_codes = re.findall(r'#(?:[0-9a-fA-F]{3}){1,2}', analysis)
-
-                # Display the AI response with color swatches
-                st.subheader("🌈 AI Color Analysis Result")
-                st.markdown(f"**Skin Color:** {color_swatch(skin_hex)} {skin_hex}", unsafe_allow_html=True)
-                st.markdown(f"**Iris Color:** {color_swatch(iris_hex)} {iris_hex}", unsafe_allow_html=True)
-                st.markdown(f"**Lip Color:** {color_swatch(lips_hex)} {lips_hex}", unsafe_allow_html=True)
-                st.markdown(analysis)
-
-                # Display extracted hex colors in a horizontal line
-                if hex_codes:
-                    st.subheader("🎨 Color Swatches")
-                    color_swatch_html = "".join([color_swatch_with_tooltip(code) for code in hex_codes])
-                    st.markdown(color_swatch_html, unsafe_allow_html=True)
-                else:
-                    st.write("No hex codes detected in the analysis.")
+                    st.error(f"❌ Error during AI analysis: {str(e)}")
 
 
     cap.release()
